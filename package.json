@@ -1,0 +1,32 @@
+{
+  "name": "json-depth-stream",
+  "version": "1.0.0",
+  "description": "Streaming JSON parser with depth-limited auxilliary data",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter=spec test/*-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/indutny/json-depth-stream.git"
+  },
+  "keywords": [
+    "json",
+    "depth",
+    "stream",
+    "auxilliary",
+    "data"
+  ],
+  "author": "Fedor Indutny <fedor@indutny.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/indutny/json-depth-stream/issues"
+  },
+  "homepage": "https://github.com/indutny/json-depth-stream#readme",
+  "dependencies": {
+    "mocha": "^2.5.3"
+  },
+  "devDependencies": {
+    "async": "^2.0.0"
+  }
+}
