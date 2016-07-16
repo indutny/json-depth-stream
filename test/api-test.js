@@ -82,4 +82,16 @@ describe('JSON depth stream', () => {
       { key: [ 0 ], start: 1, end: 5, data: null },
     ], cb);
   });
+
+  it('should work with skipped escaped string, depth=1', (cb) => {
+    test([
+      { b: { c: 3 } },
+      [ 1, 2, { e: '\t' } ],
+      []
+    ], 1, [
+      { key: [ 0 ], start: 1, end: 14, data: { b: { c: 3 } } },
+      { key: [ 1 ], start: 15, end: 31, data: [ 1, 2, { e: '\t' } ] },
+      { key: [ 2 ], start: 32, end: 34, data: [] }
+    ], cb);
+  });
 });
