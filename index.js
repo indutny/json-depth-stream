@@ -41,6 +41,9 @@ function StreamIndexer(depth) {
   this.key = '';
   this.collect = false;
 
+  // Array value index
+  this.index = 0;
+
   // Path to the current value
   this.path = [];
 
@@ -62,27 +65,27 @@ StreamIndexer.prototype._enter = function _enter(state, offset) {
 };
 
 StreamIndexer.prototype._leave = function _leave(state) {
-  const last = this.backlog.pop();
+  var last = this.backlog.pop();
   this.state = last.state;
   return this.state;
 };
 
 StreamIndexer.prototype._visit = function _visit(offset) {
-  const last = this.backlog[this.backlog.length - 1];
+  var last = this.backlog[this.backlog.length - 1];
   this.emit('visit', this.path.slice(), last.offset + 1, offset);
 };
 
 StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
-  let state = this.state;
-  let offset = this.offset;
-  let collect = this.collect;
-  let key = this.key;
-  let index = this.index;
-  let escape = this.escape;
-  let nonws = this.nonws;
-  let curly = this.curly;
-  let square = this.square;
-  let quote = this.quote;
+  var state = this.state;
+  var offset = this.offset;
+  var collect = this.collect;
+  var key = this.key;
+  var index = this.index;
+  var escape = this.escape;
+  var nonws = this.nonws;
+  var curly = this.curly;
+  var square = this.square;
+  var quote = this.quote;
 
   const maxDepth = this.maxDepth;
 
@@ -146,7 +149,7 @@ StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
         state = this._leave(STATE_OBJECT_KEY);
         state = this._enter(STATE_OBJECT_VALUE, offset);
 
-        this.path.push(JSON.parse(key.slice(0, -1)));
+        this.path.push(JSON.parse(key.slice(0, key.length - 1)));
         key = '';
         collect = false;
       }

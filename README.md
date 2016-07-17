@@ -36,19 +36,11 @@ file.pipe(json);
 
 ## Speed
 
-Around 26mb/s for JSON with many object keys, faster for array-like JSONs:
+Around 75mb/s for JSON with many object keys, faster for array-like JSONs:
 
 ```bash
 $ node benchmark/throughput.js
-Throughput: 26.02 mb/s
-
-$ ls -la /tmp/big.json
--rw-r--r--  1 findutnyy  wheel  513277262 Jul 16 00:48 /tmp/big.json
-$ time node 1
-
-real	0m0.066s
-user	0m0.051s
-sys	0m0.016s
+Throughput: 73.8 mb/s
 ```
 
 ## LICENSE
