@@ -75,7 +75,11 @@ StreamIndexer.prototype._visit = function _visit(offset) {
   this.emit('visit', this.path.slice(), last.offset + 1, offset);
 };
 
-StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
+StreamIndexer.prototype._split = function _split(index) {
+  this.emit('split', this.path.slice(), index);
+};
+
+StreamIndexer.prototype.update = function update(chunk, start, end) {
   var state = this.state;
   var offset = this.offset;
   var collect = this.collect;
@@ -89,7 +93,9 @@ StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
 
   const maxDepth = this.maxDepth;
 
-  for (let i = 0; i < chunk.length; i++, offset++) {
+  const limit = end === undefined ? chunk.length : end;
+
+  for (let i = start || 0; i < limit; i++, offset++) {
     const c = chunk[i];
 
     // TODO(indutny): optimize me
@@ -152,6 +158,8 @@ StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
         this.path.push(JSON.parse(key.slice(0, key.length - 1)));
         key = '';
         collect = false;
+
+        this._split(i + 1);
       }
       continue;
     } else if (state === STATE_OBJECT) {
@@ -167,6 +175,7 @@ StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
       }
     } else if (state === STATE_OBJECT_VALUE) {
       if (c === 0x2c /* ',' */) {
+        this._split(i);
         this._visit(offset);
 
         state = this._leave(STATE_OBJECT_VALUE);
@@ -177,6 +186,7 @@ StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
         this.path.pop();
         continue;
       } else if (c === 0x7d /* '}' */) {
+        this._split(i);
         this._visit(offset);
 
         state = this._leave(STATE_OBJECT_VALUE);
@@ -187,23 +197,29 @@ StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
       }
     } else if (state === STATE_ARRAY_VALUE) {
       if (c === 0x2c /* ',' */) {
+        this._split(i);
         this._visit(offset);
 
         state = this._leave(STATE_ARRAY_VALUE);
         state = this._enter(STATE_ARRAY_VALUE, offset);
 
         this.path[this.path.length - 1] = ++index;
+        this._split(i + 1);
         // no-op
         continue;
       } else if (c === 0x5d /* ']' */) {
-        if (nonws !== 1)
+        if (nonws !== 1) {
           this._visit(offset);
+          this._split(i);
+        }
 
         state = this._leave(STATE_ARRAY_VALUE);
         state = this._leave(STATE_ARRAY);
 
         this.path.pop();
         continue;
+      } else if (nonws === 1) {
+        this._split(i);
       }
     }
 
@@ -243,6 +259,9 @@ StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
   this.curly = curly;
   this.square = square;
   this.quote = quote;
+};
 
+StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
+  this.update(chunk, 0, chunk.length);
   cb(null);
 };

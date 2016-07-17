@@ -27,7 +27,7 @@ const ITERATIONS = 10;
 const start = process.hrtime();
 for (let i = ITERATIONS; i >= 0; i--) {
   const s = new JSONStream(1);
-  s.end(input);
+  s.update(input, 0, input.length);
 }
 const diff = process.hrtime(start);
 
