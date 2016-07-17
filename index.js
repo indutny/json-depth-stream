@@ -1,7 +1,7 @@
 'use strict';
 
 const util = require('util');
-const Transform = require('stream').Transform;
+const Writable = require('stream').Writable;
 
 const STATE_VALUE = 0;
 const STATE_STRING = 1;
@@ -15,7 +15,7 @@ const STATE_SKIP = 8;
 const STATE_ERROR = 9;
 
 function StreamIndexer(depth) {
-  Transform.call(this);
+  Writable.call(this);
 
   // Maximum depth
   this.maxDepth = depth || 1;
@@ -46,7 +46,7 @@ function StreamIndexer(depth) {
   // Backlog of states
   this.backlog = [];
 }
-util.inherits(StreamIndexer, Transform);
+util.inherits(StreamIndexer, Writable);
 module.exports = StreamIndexer;
 
 function BacklogEntry(state, offset) {
@@ -71,7 +71,7 @@ StreamIndexer.prototype._visit = function _visit(offset) {
   this.emit('visit', this.path.slice(), last.offset + 1, offset);
 };
 
-StreamIndexer.prototype._transform = function _transform(chunk, encoding, cb) {
+StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
   let state = this.state;
   let offset = this.offset;
   let collect = this.collect;
@@ -234,5 +234,5 @@ StreamIndexer.prototype._transform = function _transform(chunk, encoding, cb) {
   this.curly = curly;
   this.square = square;
 
-  cb(null, chunk);
+  cb(null);
 };

@@ -23,10 +23,7 @@ describe('JSON depth stream', () => {
 
       for (let i = 0; i < input.length; i += step)
         s.write(input.slice(i, i + step));
-      s.end();
-
-      s.resume();
-      s.once('end', () => {
+      s.end(() => {
         assert.deepEqual(visits, expected, `Step size: ${step}`);
         callback(null);
       });
