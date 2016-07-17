@@ -91,4 +91,16 @@ describe('JSON depth stream', () => {
       { key: [ 2 ], start: 32, end: 34, data: [] }
     ], cb);
   });
+
+  it('should work with skipped string with `}`, depth=1', (cb) => {
+    test([
+      { b: { c: 3 } },
+      [ 1, 2, { e: '}' } ],
+      []
+    ], 1, [
+      { key: [ 0 ], start: 1, end: 14, data: { b: { c: 3 } } },
+      { key: [ 1 ], start: 15, end: 30, data: [ 1, 2, { e: '}' } ] },
+      { key: [ 2 ], start: 31, end: 33, data: [] }
+    ], cb);
+  });
 });

@@ -35,6 +35,7 @@ function StreamIndexer(depth) {
   // Count braces when skipping value
   this.curly = 0;
   this.square = 0;
+  this.quote = 0;
 
   // Collect object key value
   this.key = '';
@@ -81,6 +82,7 @@ StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
   let nonws = this.nonws;
   let curly = this.curly;
   let square = this.square;
+  let quote = this.quote;
 
   const maxDepth = this.maxDepth;
 
@@ -113,7 +115,7 @@ StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
 
     // Skip deep object completely
     if (state === STATE_SKIP) {
-      if (curly === 0 && square === 0 &&
+      if (curly === 0 && square === 0 && quote === 0 &&
           (c === 0x2c /* ',' */ ||
            c === 0x7d /* '}' */ ||
            c === 0x5d /* ']' */)) {
@@ -121,6 +123,10 @@ StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
         // Re-execute
         i--;
         offset--;
+      } else if (c === 0x22 /* '"' */) {
+        quote ^= 1;
+      } else if (quote !== 0) {
+        // Parsing string
       } else if (c === 0x7b /* '{' */) {
         curly++;
       } else if (c === 0x5b /* '[' */) {
@@ -233,6 +239,7 @@ StreamIndexer.prototype._write = function _write(chunk, encoding, cb) {
   this.nonws = nonws;
   this.curly = curly;
   this.square = square;
+  this.quote = quote;
 
   cb(null);
 };
