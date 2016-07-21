@@ -4,7 +4,9 @@
   "description": "Streaming JSON parser with depth-limited auxiliary data",
   "main": "lib/json-depth-stream.js",
   "scripts": {
-    "test": "mocha --reporter=spec test/*-test.js"
+    "lint": "make lint",
+    "format": "make format",
+    "test": "mocha --reporter=spec test/*-test.js && npm run lint"
   },
   "repository": {
     "type": "git",
@@ -25,6 +27,7 @@
   "homepage": "https://github.com/indutny/json-depth-stream#readme",
   "devDependencies": {
     "async": "^2.0.0",
+    "eslint": "^3.1.1",
     "mocha": "^2.5.3"
   }
 }

@@ -1,4 +1,6 @@
 'use strict';
+/* global describe it */
+/* eslint-disable no-console */
 
 const assert = require('assert');
 
@@ -46,11 +48,9 @@ describe('JSON depth stream', () => {
 
   function testQuery(json, depth, target, expected, callback) {
     withStream(json, depth, (s, callback) => {
-      const visits = [];
-
       let chunks = '';
       const q = s.query(target);
-      q.on('data', chunk => chunks += chunk)
+      q.on('data', chunk => chunks += chunk);
       q.on('end', () => {
         if (expected instanceof Error)
           return callback(new Error('Unexpected end'));
