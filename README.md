@@ -58,11 +58,11 @@ json.on('split', (path, index) => {
 
 ## Speed
 
-Around 75mb/s for JSON with many object keys, faster for array-like JSONs:
+Around 78mb/s for JSON with many object keys, faster for array-like JSONs:
 
 ```bash
 $ node benchmark/throughput.js
-Throughput: 73.8 mb/s
+Throughput: 78.44 mb/s
 ```
 
 ## LICENSE

@@ -11,7 +11,7 @@ function big(depth) {
   if (depth % 2 === 1) {
     const res = {};
     for (let i = 0; i < 100; i++)
-      res[i.toString()] = big(depth - 1);
+      res['prefix' + i.toString()] = big(depth - 1);
     return res;
   }
   const res = [];

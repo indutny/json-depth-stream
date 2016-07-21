@@ -39,7 +39,6 @@ function StreamIndexer(depth) {
 
   // Collect object key value
   this.key = '';
-  this.collect = false;
 
   // Array value index
   this.index = 0;
@@ -82,7 +81,6 @@ StreamIndexer.prototype._split = function _split(index) {
 StreamIndexer.prototype.update = function update(chunk, start, end) {
   var state = this.state;
   var offset = this.offset;
-  var collect = this.collect;
   var key = this.key;
   var index = this.index;
   var escape = this.escape;
@@ -95,12 +93,9 @@ StreamIndexer.prototype.update = function update(chunk, start, end) {
 
   const limit = end === undefined ? chunk.length : end;
 
+  var keyStart = start || 0;
   for (let i = start || 0; i < limit; i++, offset++) {
     const c = chunk[i];
-
-    // TODO(indutny): optimize me
-    if (collect === true)
-      key += String.fromCharCode(c);
 
     // Handle escape sequences (they are allowed only in strings, but we don't
     // care)
@@ -152,12 +147,12 @@ StreamIndexer.prototype.update = function update(chunk, start, end) {
       if (state === STATE_STRING && c === 0x22 /* '"' */) {
         state = this._leave(STATE_STRING);
       } else if (this.state === STATE_OBJECT_KEY && c === 0x3a /* ':' */) {
+        key += chunk.slice(keyStart, i);
         state = this._leave(STATE_OBJECT_KEY);
         state = this._enter(STATE_OBJECT_VALUE, offset);
 
-        this.path.push(JSON.parse(key.slice(0, key.length - 1)));
+        this.path.push(JSON.parse(key));
         key = '';
-        collect = false;
 
         this._split(i + 1);
       }
@@ -168,9 +163,9 @@ StreamIndexer.prototype.update = function update(chunk, start, end) {
         continue;
       } else if (c === 0x22 /* '"' */) {
         state = this._enter(STATE_OBJECT_KEY, offset);
+        keyStart = i;
 
-        key = '"';
-        collect = true;
+        key = '';
         continue;
       }
     } else if (state === STATE_OBJECT_VALUE) {
@@ -180,8 +175,8 @@ StreamIndexer.prototype.update = function update(chunk, start, end) {
 
         state = this._leave(STATE_OBJECT_VALUE);
         state = this._enter(STATE_OBJECT_KEY, offset);
+        keyStart = i + 1;
 
-        collect = true;
         key = '';
         this.path.pop();
         continue;
@@ -249,9 +244,11 @@ StreamIndexer.prototype.update = function update(chunk, start, end) {
     }
   }
 
+  if (state === STATE_OBJECT_KEY)
+    key += chunk.slice(keyStart, limit);
+
   this.state = state;
   this.offset = offset;
-  this.collect = collect;
   this.key = key;
   this.index = index;
   this.escape = escape;
