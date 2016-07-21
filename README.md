@@ -28,10 +28,32 @@ const file = require('fs').createReadStream('/tmp/big.json');
 const json = new DepthStream(1 /* desired depth */);
 
 json.on('visit', (path, start, end) => {
+  // `path` is a nested JSON key like: `["a", 0, "b"]`, which is equivalent to
+  // `obj.a[0].b` (assuming `obj.a` is an Array)
+
+  // `start` and `end` are offsets in the input stream
+  // they could be used in `fs.read()` if streaming from file.
   console.log(path, start, end);
 });
 
 file.pipe(json);
+```
+
+Stream-once usage:
+```js
+const json = new DepthStream(1);
+
+process.stdin.on('data', (chunk) => {
+  json.update(chunk);
+});
+
+// `split` even is emitted when parser enters new object value/array element
+// `index` is local to `chunk`.
+json.on('split', (path, index) => {
+  // `path` is the same as above
+  // `index` is an index in a `chunk` that was given to `.update(chunk)`
+  console.log(path, index);
+});
 ```
 
 ## Speed
