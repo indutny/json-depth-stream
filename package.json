@@ -2,7 +2,7 @@
   "name": "json-depth-stream",
   "version": "2.1.0",
   "description": "Streaming JSON parser with depth-limited auxiliary data",
-  "main": "index.js",
+  "main": "lib/json-depth-stream.js",
   "scripts": {
     "test": "mocha --reporter=spec test/*-test.js"
   },

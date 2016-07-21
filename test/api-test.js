@@ -7,28 +7,64 @@ const async = require('async');
 const Stream = require('../');
 
 describe('JSON depth stream', () => {
-  function test(json, depth, expected, callback) {
+  function withStream(json, depth, body, callback) {
     const input = JSON.stringify(json);
 
     // Try various steps
     let step = input.length;
     async.doWhilst((callback) => {
+      const stepCopy = step;
       const s = new Stream(depth);
 
+      body(s, callback);
+
+      for (let i = 0; i < input.length; i += stepCopy)
+        s.write(input.slice(i, i + stepCopy));
+
+      s.end();
+    }, () => {
+      return --step > 0;
+    }, callback);
+  }
+
+  function test(json, depth, expected, callback) {
+    const input = JSON.stringify(json);
+
+    withStream(json, depth, (s, callback) => {
       const visits = [];
       s.on('visit', (key, start, end) => {
         const data = JSON.parse(input.slice(start, end));
         visits.push({ key: key, start: start, end: end, data: data });
       });
 
-      for (let i = 0; i < input.length; i += step)
-        s.write(input.slice(i, i + step));
-      s.end(() => {
-        assert.deepEqual(visits, expected, `Step size: ${step}`);
+      s.on('finish', () => {
+        assert.deepEqual(visits, expected);
         callback(null);
       });
-    }, () => {
-      return --step > 0;
+    }, callback);
+  }
+
+  function testQuery(json, depth, target, expected, callback) {
+    withStream(json, depth, (s, callback) => {
+      const visits = [];
+
+      let chunks = '';
+      const q = s.query(target);
+      q.on('data', chunk => chunks += chunk)
+      q.on('end', () => {
+        if (expected instanceof Error)
+          return callback(new Error('Unexpected end'));
+
+        assert.deepEqual(JSON.parse(chunks), expected);
+        callback(null);
+      });
+      q.once('error', (err) => {
+        if (expected instanceof Error)
+          assert.equal(err.message, expected.message);
+        else
+          return callback(err);
+        callback(null);
+      });
     }, callback);
   }
 
@@ -102,5 +138,35 @@ describe('JSON depth stream', () => {
       { key: [ 1 ], start: 15, end: 30, data: [ 1, 2, { e: '}' } ] },
       { key: [ 2 ], start: 31, end: 33, data: [] }
     ], cb);
+  });
+
+  it('should query shallow key', (cb) => {
+    testQuery({
+      a: 1
+    }, 1, [ 'a' ], 1, cb);
+  });
+
+  it('should query key', (cb) => {
+    testQuery([
+      { b: { c: 3 } },
+      [ 1, 2, { e: '}' } ],
+      []
+    ], 3, [ 0, 'b', 'c' ], 3, cb);
+  });
+
+  it('should query key with subkeys', (cb) => {
+    testQuery([
+      { b: { c: { e: 'f' } } },
+      [ 1, 2, { e: '}' } ],
+      []
+    ], 4, [ 0, 'b', 'c' ], { e: 'f' }, cb);
+  });
+
+  it('should fail if key not found', (cb) => {
+    testQuery([
+      { b: { c: 3 } },
+      [ 1, 2, { e: '}' } ],
+      []
+    ], 3, [ 1, 'b' ], new Error('Not found'), cb);
   });
 });

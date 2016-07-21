@@ -39,6 +39,19 @@ json.on('visit', (path, start, end) => {
 file.pipe(json);
 ```
 
+Query:
+```js
+const json = new DepthStream(1);
+
+const q = json.query([ 'path' ]);
+q.pipe(process.stdout);
+q.once('end', () => {
+  process.stdin.unpipe(json);
+});
+
+process.stdin.pipe(json);
+```
+
 Stream-once usage:
 ```js
 const json = new DepthStream(1);
