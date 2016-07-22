@@ -10,7 +10,7 @@ It is impossible to parse 1gb JSON file with native node.js primitives.
 ## How?
 
 Just a streaming parser, nothing really fancy. The only difference between this
-parser and the others is that it can skip data that nested too deeply.
+parser and the others is that it can skip data that is nested too deeply.
 
 ## Installation
 
