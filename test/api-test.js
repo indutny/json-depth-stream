@@ -72,11 +72,11 @@ describe('JSON depth stream', () => {
     test({
       a: { b: { c: 3 } },
       d: [ 1, 2, { e: 5 } ],
-      f: []
+      f: [],
     }, 1, [
       { key: [ 'a' ], start: 5, end: 18, data: { b: { c: 3 } } },
       { key: [ 'd' ], start: 23, end: 36, data: [ 1, 2, { e: 5 } ] },
-      { key: [ 'f' ], start: 41, end: 43, data: [] }
+      { key: [ 'f' ], start: 41, end: 43, data: [] },
     ], cb);
   });
 
@@ -84,7 +84,7 @@ describe('JSON depth stream', () => {
     test({
       a: { b: { c: 3 } },
       d: [ 1, 2, { e: 5 } ],
-      f: []
+      f: [],
     }, 2, [
       { key: [ 'a', 'b' ], start: 10, end: 17, data: { c: 3 } },
       { key: [ 'a' ], start: 5, end: 18, data: { b: { c: 3 } } },
@@ -92,7 +92,7 @@ describe('JSON depth stream', () => {
       { key: [ 'd', 1 ], start: 26, end: 27, data: 2 },
       { key: [ 'd', 2 ], start: 28, end: 35, data: { e: 5 } },
       { key: [ 'd' ], start: 23, end: 36, data: [ 1, 2, { e: 5 } ] },
-      { key: [ 'f' ], start: 41, end: 43, data: [] }
+      { key: [ 'f' ], start: 41, end: 43, data: [] },
     ], cb);
   });
 
@@ -100,17 +100,17 @@ describe('JSON depth stream', () => {
     test([
       { b: { c: 3 } },
       [ 1, 2, { e: 5 } ],
-      []
+      [],
     ], 1, [
       { key: [ 0 ], start: 1, end: 14, data: { b: { c: 3 } } },
       { key: [ 1 ], start: 15, end: 28, data: [ 1, 2, { e: 5 } ] },
-      { key: [ 2 ], start: 29, end: 31, data: [] }
+      { key: [ 2 ], start: 29, end: 31, data: [] },
     ], cb);
   });
 
   it('should work with null, depth=1', (cb) => {
     test([
-      null
+      null,
     ], 1, [
       { key: [ 0 ], start: 1, end: 5, data: null },
     ], cb);
@@ -120,11 +120,11 @@ describe('JSON depth stream', () => {
     test([
       { b: { c: 3 } },
       [ 1, 2, { e: '\t' } ],
-      []
+      [],
     ], 1, [
       { key: [ 0 ], start: 1, end: 14, data: { b: { c: 3 } } },
       { key: [ 1 ], start: 15, end: 31, data: [ 1, 2, { e: '\t' } ] },
-      { key: [ 2 ], start: 32, end: 34, data: [] }
+      { key: [ 2 ], start: 32, end: 34, data: [] },
     ], cb);
   });
 
@@ -132,17 +132,17 @@ describe('JSON depth stream', () => {
     test([
       { b: { c: 3 } },
       [ 1, 2, { e: '}' } ],
-      []
+      [],
     ], 1, [
       { key: [ 0 ], start: 1, end: 14, data: { b: { c: 3 } } },
       { key: [ 1 ], start: 15, end: 30, data: [ 1, 2, { e: '}' } ] },
-      { key: [ 2 ], start: 31, end: 33, data: [] }
+      { key: [ 2 ], start: 31, end: 33, data: [] },
     ], cb);
   });
 
   it('should query shallow key', (cb) => {
     testQuery({
-      a: 1
+      a: 1,
     }, 1, [ 'a' ], 1, cb);
   });
 
@@ -150,7 +150,7 @@ describe('JSON depth stream', () => {
     testQuery([
       { b: { c: 3 } },
       [ 1, 2, { e: '}' } ],
-      []
+      [],
     ], 3, [ 0, 'b', 'c' ], 3, cb);
   });
 
@@ -158,7 +158,7 @@ describe('JSON depth stream', () => {
     testQuery([
       { b: { c: { e: 'f' } } },
       [ 1, 2, { e: '}' } ],
-      []
+      [],
     ], 4, [ 0, 'b', 'c' ], { e: 'f' }, cb);
   });
 
@@ -166,7 +166,7 @@ describe('JSON depth stream', () => {
     testQuery([
       { b: { c: 3 } },
       [ 1, 2, { e: '}' } ],
-      []
+      [],
     ], 3, [ 1, 'b' ], new Error('Not found'), cb);
   });
 });
