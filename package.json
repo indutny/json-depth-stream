@@ -1,6 +1,6 @@
 {
   "name": "json-depth-stream",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "Streaming JSON parser with depth-limited auxiliary data",
   "main": "lib/json-depth-stream.js",
   "scripts": {
