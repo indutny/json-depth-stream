@@ -27,7 +27,7 @@ const DepthStream = require('json-depth-stream');
 const file = require('fs').createReadStream('/tmp/big.json');
 const json = new DepthStream(1 /* desired depth */);
 
-json.on('visit', (path, start, end, chunk) => {
+json.on('visit', (path, start, end) => {
   // `path` is a nested JSON key like: `["a", 0, "b"]`, which is equivalent to
   // `obj.a[0].b` (assuming `obj.a` is an Array)
 
