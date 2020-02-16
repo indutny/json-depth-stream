@@ -60,7 +60,7 @@ process.stdin.on('data', (chunk) => {
   json.update(chunk);
 });
 
-// `split` even is emitted when parser enters new object value/array element
+// `split` event is emitted when parser enters new object value/array element.
 // `index` is local to `chunk`.
 json.on('split', (path, index) => {
   // `path` is the same as above
